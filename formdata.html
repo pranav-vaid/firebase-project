@@ -1,0 +1,111 @@
+
+<body>
+  <center>
+	<table border = "0" id = "tableDetails">
+		<tr>
+			<td>S. No. </td>
+			<td>Name </td>
+			<td>E-Mail </td>
+			<td>Phone </td>
+		</tr>
+	</table>
+  </center>
+</body>	
+
+<script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-database.js"></script>
+
+<script>	
+	//Our web app's firebase configuration
+	var firebaseConfig = {
+			apiKey: "AIzaSyAaR1cdoKAqMYXt4PbjtATUPPRSNBiYJiE",
+			authDomain: "first-project-20759.firebaseapp.com",
+			databaseURL: "https://first-project-20759.firebaseio.com",
+			projectId: "first-project-20759",
+			storageBucket: "first-project-20759.appspot.com",
+			messagingSenderId: "307042402335",
+			appId: "1:307042402335:web:8887b68516562042bf552a",
+			measurementId: "G-9MXMD4J3H4"
+	};
+	
+	//Initializing App
+	firebase.initializeApp(firebaseConfig);
+	
+	//Calling reference to our database for reading data
+	var detailsRef = firebase.database().ref('details');
+	
+	//Reading data
+	detailsRef.on('value', getData, errData);
+	
+	function getData(data) {
+		//Assigning all the object values to an array
+		var details = data.val();
+		
+		//Assigning all the key values to an array
+		var keys = Object.keys(details);
+		
+		//Iterating over all the keys
+		for(var i = 0; i < keys.length; i++) {
+
+			var key = keys[i];
+			var sno = i + 1;
+			var name = details[key].Name;
+			var email = details[key].EMail;
+			var phone = details[key].PhoneNumber;
+			
+			//Deleting any previous rows
+			//This will make our website Real-time, i.e. everytime we make any changes to data, it will be automatically updated
+			var detailsListing = document.getElementById("details" + i);
+			if ( detailsListing ) {
+				detailsListing.remove();
+			}
+			
+			//Creating row
+			var tr = document.createElement("tr");
+			tr.id = "details" + i;
+			document.getElementById("tableDetails").appendChild(tr);
+			
+			//Creating columns for displaying individual fields
+			var tdSNo = document.createElement("td");
+			tdSNo.innerHTML = sno;
+			document.getElementById("details" + i).appendChild(tdSNo);
+			
+			var tdName = document.createElement("td");
+			tdName.innerHTML = name;
+			document.getElementById("details" + i).appendChild(tdName);
+			
+			var tdEmail = document.createElement("td");
+			tdEmail.innerHTML = email;
+			document.getElementById("details" + i).appendChild(tdEmail);
+			
+			var tdNumber = document.createElement("td");
+			tdNumber.innerHTML = phone;
+			document.getElementById("details" + i).appendChild(tdNumber);
+			
+			var tdEdit = document.createElement("button");
+			tdEdit.innerHTML = "Edit";
+			tdEdit.setAttribute("type", "Submit");
+			tdEdit.setAttribute("onClick", "location.href = 'formupdate.html?update=true&key=" + key + "';");
+			document.getElementById("details" + i).appendChild(tdEdit);
+			
+			var tdDelete = document.createElement("button");
+			tdDelete.innerHTML = "Delete";
+			tdDelete.setAttribute("onClick", "deleteData('" + key + "')");	
+			document.getElementById("details" + i).appendChild(tdDelete);
+		}	
+	}
+	
+	//Function for deleting a specific row
+	function deleteData(key) {
+		detailsRef.child(key).remove();
+		window.location.replace("formdata.html");
+	}
+	
+	//Function for displaying errors
+	function errData(err) {
+		console.log(err);
+	}
+
+</script>
+

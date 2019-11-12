@@ -1,0 +1,215 @@
+<html>
+	<body>
+	  <center>
+		<form id = "signUpForm" action = "formdata.html" method = "POST">
+			<ul>Name</ul>
+			<ul><input type = "text" class = "field" id = "nameField" autocomplete = "off" required></ul>
+			<font size = "2px" color = "red" id = "nameErr"></font>
+			
+			<ul>E-Mail</ul>
+			<ul><input type = "email" class = "field" id = "emailField" autocomplete = "off" required></ul>
+			<font size = "2px" color = "red" id = "emailErr"></font>
+			
+			<ul>Phone Number</ul>
+			<ul><input type = "tel" class = "field" id = "numberField" autocomplete = "off" required></ul>
+			<font size = "2px" color = "red" id = "numberErr"></font>			
+			
+			<ul><input type = "submit" id = "okButton" disabled value = "Update"></ul>
+		</form>
+	  </center>
+
+		<script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-database.js"></script>
+
+
+		<script>
+			//Collecting parameters from previous page through "get" method
+			var queryDict = {};
+			location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
+
+			var update = queryDict["update"];
+			var key = queryDict["key"];
+			
+			// Our web app's Firebase configuration
+			var firebaseConfig = {
+				apiKey: "AIzaSyAaR1cdoKAqMYXt4PbjtATUPPRSNBiYJiE",
+				authDomain: "first-project-20759.firebaseapp.com",
+				databaseURL: "https://first-project-20759.firebaseio.com",
+				projectId: "first-project-20759",
+				storageBucket: "first-project-20759.appspot.com",
+				messagingSenderId: "307042402335",
+				appId: "1:307042402335:web:8887b68516562042bf552a",
+				measurementId: "G-9MXMD4J3H4"
+			};
+			
+			// Initialize Firebase
+			firebase.initializeApp(firebaseConfig);
+			
+			//Calling Reference of our database
+			var detailsRef = firebase.database().ref('details');
+			
+			//Putting values of selected row in textbox for updating
+			if ( update ) {
+				//Calling reference for reading data
+				var preRef = firebase.database().ref('details');
+				preRef.once('value', getData);
+				
+				function getData(data) {
+					var details = data.val();
+					var preName = details[key].Name;
+					var preEmail = details[key].EMail;
+					var prePhone = details[key].PhoneNumber;
+					
+					document.getElementById('nameField').setAttribute("value", preName);
+					document.getElementById('emailField').setAttribute("value", preEmail);
+					document.getElementById('numberField').setAttribute("value", prePhone);
+				}
+			}
+			
+			//Function for validating email using Regular Expression
+			function ValidateEmail(mail, errField) {
+				if (mail == "") {
+					emailErr.hidden = true;
+					return false
+				}
+				
+				if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+					emailErr.hidden = true;
+					return true
+				}
+				
+				else {
+					errMsg = "E-Mail is invalid.";
+					document.getElementById(errField).innerHTML = errMsg;
+					emailErr.hidden = false;
+					return false
+				}
+			}
+			
+			//Function for validating name using Regular Expression
+			function ValidateName(name, errField) {
+				if (name == "") {
+					nameErr.hidden = true;
+					return false
+				}
+				
+				if (/^[a-zA-Z ]{2,30}$/.test(name)) {
+					nameErr.hidden = true;
+					return true
+				}
+				
+				else {
+					errMsg = "Name is invalid.";
+					document.getElementById(errField).innerHTML = errMsg;
+					nameErr.hidden = false;
+					return false
+				}
+			}
+			
+			//Function for validating number using Regular Expression
+			function ValidateNumber(number, errField) {
+				if (number == "") {
+					numberErr.hidden = true;
+					return false
+				}
+				
+				if (/^\d{10}$/.test(number)) {
+					numberErr.hidden = true;
+					return true
+				}
+				
+				else {
+					errMsg = "Phone Number is invalid.";
+					document.getElementById(errField).innerHTML = errMsg;
+					numberErr.hidden = false;
+					return false
+				}
+			}
+			
+			//Function for validating all the contents of form simultaneously
+			function ValidateForm(email, name, number) {
+				if (email && name && number) {
+					return true
+				}
+				
+				else {
+					return false
+				}
+			}
+			
+			//Evaluating validation of the fields on Keypress in name field
+			nameField.addEventListener('keyup', function (event) {
+				isValidForm = ValidateForm(
+										ValidateEmail(emailField.value, "emailErr"),
+										ValidateName(nameField.value, "nameErr"),
+										ValidateNumber(numberField.value, "numberErr")
+							  );
+							  
+				//Disabling button if validation fails
+				if ( isValidForm ) {
+					okButton.disabled = false;
+				} 
+				else {
+					okButton.disabled = true;
+				}
+			});
+			
+			//Evaluating validation of the fields on Keypress in email field
+			emailField.addEventListener('keyup', function (event) {
+				isValidForm = ValidateForm(
+										ValidateEmail(emailField.value, "emailErr"),
+										ValidateName(nameField.value, "nameErr"),
+										ValidateNumber(numberField.value, "numberErr")
+							  );
+							  
+				//Disabling button if validation fails
+				if ( isValidForm ) {
+					okButton.disabled = false;
+					nameErr.disabled = false;
+				} 
+				else {
+					okButton.disabled = true;
+				}
+			});
+			
+			//Evaluating validation of the fields on Keypress in number field
+			numberField.addEventListener('keyup', function (event) {
+				isValidForm = ValidateForm(
+									  ValidateEmail(emailField.value, "emailErr"),
+									  ValidateName(nameField.value, "nameErr"),
+									  ValidateNumber(numberField.value, "numberErr")
+							  );
+				
+				//Disabling button if validation fails
+				if ( isValidForm ) {
+					okButton.disabled = false;
+					nameErr.disabled = false;
+				} 
+				else {
+					okButton.disabled = true;
+				}
+			});
+			
+			//Updating data on the database on clicking submit button
+			okButton.addEventListener("click", function (event) {
+				var name = document.getElementById("nameField").value;
+				var email = emailField.value;
+				var number = numberField.value;
+				
+				var newData = {
+					Name: name,
+					EMail: email,
+					PhoneNumber: number
+				}
+				
+				var updates = {};
+				updates['/'+key] = newData;
+				detailsRef.update(updates);
+			});
+			
+		</script>
+	</body>
+</html>
+
+
