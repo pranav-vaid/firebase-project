@@ -193,18 +193,19 @@
 			
 			//Updating data on the database on clicking submit button
 			okButton.addEventListener("click", function (event) {
-				var name = document.getElementById("nameField").value;
+				var name = nameField.value;
 				var email = emailField.value;
 				var number = numberField.value;
 				
 				var newData = {
 					Name: name,
 					EMail: email,
-					PhoneNumber: number
+					PhoneNumber: number,
+					Key: key
 				}
 				
 				var updates = {};
-				updates['/'+key] = newData;
+				updates['/' + key] = newData;
 				detailsRef.update(updates);
 			});
 			
